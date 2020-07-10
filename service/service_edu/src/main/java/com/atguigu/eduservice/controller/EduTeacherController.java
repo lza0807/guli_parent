@@ -4,6 +4,7 @@ package com.atguigu.eduservice.controller;
 import com.atguigu.commonutils.R;
 import com.atguigu.eduservice.entity.EduTeacher;
 import com.atguigu.eduservice.entity.vo.TeacherQuery;
+import com.atguigu.eduservice.mapper.EduTeacherMapper;
 import com.atguigu.eduservice.service.EduTeacherService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -12,7 +13,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +39,9 @@ public class EduTeacherController {
 
     @Autowired
     private EduTeacherService teacherService;
+
+    @Autowired
+    private EduTeacherMapper eduTeacherMapper;
 
     /**
      * //1 查询讲师表所有数据
@@ -91,6 +98,14 @@ public class EduTeacherController {
         return R.ok().data(map);
     }
 
+    /**
+     * 条件分页查询
+     *
+     * @param page
+     * @param limit
+     * @param teacherQuery
+     * @return
+     */
     @ApiOperation(value = "条件分页查询")
     @GetMapping("pageCond/{page}/{limit}")
     public R SearchTeachersPageListAndTJ(
@@ -102,12 +117,41 @@ public class EduTeacherController {
         Page<EduTeacher> eduTeacherPage = new Page<>(page, limit);
         LambdaQueryWrapper<EduTeacher> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper
-                .like(StringUtils.isEmpty(teacherQuery.getName()), EduTeacher::getName, teacherQuery.getName())
-                .ne(EduTeacher::getId,1);
-        teacherService.page(eduTeacherPage, lambdaQueryWrapper);
+                .eq(!StringUtils.isEmpty(teacherQuery.getLevel()), EduTeacher::getLevel, teacherQuery.getLevel());
+        eduTeacherMapper.selectPage(eduTeacherPage, lambdaQueryWrapper);
         long total = eduTeacherPage.getTotal();
         List<EduTeacher> records = eduTeacherPage.getRecords();
-        return R.ok().data("total",total).data("items",records);
+        return R.ok().data("total", total).data("items", records);
+    }
+
+    /**
+     * 讲师添加
+     *
+     * @param eduTeacher
+     * @return
+     */
+    @ApiOperation("讲师添加")
+    @PostMapping("addEduTeacher")
+    public R addEduTeacher(
+            @ApiParam(value = "讲师信息", required = true)
+            @RequestBody EduTeacher eduTeacher) {
+        if (ObjectUtils.isEmpty(eduTeacher)) {
+            return R.error();
+        }
+        boolean save = teacherService.save(eduTeacher);
+        return save ? R.ok() : R.error();
+    }
+
+    @ApiOperation("讲师修改")
+    @PutMapping("{id}")
+    public R editEduTeacher(
+            @ApiParam(value = "讲师ID", required = true)
+            @PathVariable String id,
+            @RequestBody EduTeacher eduTeacher) {
+
+        eduTeacher.setId(id);
+        boolean b = teacherService.updateById(eduTeacher);
+        return b ? R.ok() : R.error();
     }
 }
 
