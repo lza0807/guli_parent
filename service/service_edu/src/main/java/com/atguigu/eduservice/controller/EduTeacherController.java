@@ -6,6 +6,7 @@ import com.atguigu.eduservice.entity.EduTeacher;
 import com.atguigu.eduservice.entity.vo.TeacherQuery;
 import com.atguigu.eduservice.mapper.EduTeacherMapper;
 import com.atguigu.eduservice.service.EduTeacherService;
+import com.atguigu.servicebase.exceptionhandler.GuliException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -54,6 +55,11 @@ public class EduTeacherController {
     public R findAllTeacher() {
         //调用service的方法实现查询所有的操作
         QueryWrapper<EduTeacher> queryWrapper = new QueryWrapper();
+        try {
+            int a = 10 / 0;
+        } catch (Exception e) {
+            throw new GuliException(20001,"出现自定义异常!!!");
+        }
         queryWrapper.lambda().ne(EduTeacher::getId, 0);
         List<EduTeacher> list = teacherService.list(null);
         return R.ok().data("items", list);
