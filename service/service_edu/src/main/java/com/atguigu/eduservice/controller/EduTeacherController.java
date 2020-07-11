@@ -114,17 +114,19 @@ public class EduTeacherController {
      * @return
      */
     @ApiOperation(value = "条件分页查询")
-    @GetMapping("pageCond/{page}/{limit}")
+    @PostMapping("pageCond/{page}/{limit}")
     public R SearchTeachersPageListAndTJ(
             @ApiParam(name = "page", value = "当前页", required = true)
             @PathVariable(value = "page") Long page,
             @ApiParam(name = "limit", value = "每页记录数", required = true)
             @PathVariable(value = "limit") Long limit,
-            TeacherQuery teacherQuery) {
+            @RequestBody TeacherQuery teacherQuery) {
         Page<EduTeacher> eduTeacherPage = new Page<>(page, limit);
         LambdaQueryWrapper<EduTeacher> lambdaQueryWrapper = new LambdaQueryWrapper();
         lambdaQueryWrapper
-                .eq(!StringUtils.isEmpty(teacherQuery.getLevel()), EduTeacher::getLevel, teacherQuery.getLevel());
+                .eq(!StringUtils.isEmpty(teacherQuery.getLevel()), EduTeacher::getLevel, teacherQuery.getLevel())
+                .le(!StringUtils.isEmpty(teacherQuery.getEnd()),EduTeacher::getGmtCreate,teacherQuery.getEnd())
+                .ge(!StringUtils.isEmpty(teacherQuery.getBegin()),EduTeacher::getGmtCreate,teacherQuery.getBegin());
         eduTeacherMapper.selectPage(eduTeacherPage, lambdaQueryWrapper);
         long total = eduTeacherPage.getTotal();
         List<EduTeacher> records = eduTeacherPage.getRecords();
