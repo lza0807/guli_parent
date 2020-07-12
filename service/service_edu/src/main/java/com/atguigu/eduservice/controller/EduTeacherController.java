@@ -126,7 +126,8 @@ public class EduTeacherController {
         lambdaQueryWrapper
                 .eq(!StringUtils.isEmpty(teacherQuery.getLevel()), EduTeacher::getLevel, teacherQuery.getLevel())
                 .le(!StringUtils.isEmpty(teacherQuery.getEnd()),EduTeacher::getGmtCreate,teacherQuery.getEnd())
-                .ge(!StringUtils.isEmpty(teacherQuery.getBegin()),EduTeacher::getGmtCreate,teacherQuery.getBegin());
+                .ge(!StringUtils.isEmpty(teacherQuery.getBegin()),EduTeacher::getGmtCreate,teacherQuery.getBegin())
+                .orderByDesc(EduTeacher::getGmtCreate);
         eduTeacherMapper.selectPage(eduTeacherPage, lambdaQueryWrapper);
         long total = eduTeacherPage.getTotal();
         List<EduTeacher> records = eduTeacherPage.getRecords();
@@ -151,16 +152,30 @@ public class EduTeacherController {
         return save ? R.ok() : R.error();
     }
 
+    /**
+     * 讲师修改
+     * @param eduTeacher
+     * @return
+     */
     @ApiOperation("讲师修改")
-    @PutMapping("{id}")
+    @PutMapping
     public R editEduTeacher(
-            @ApiParam(value = "讲师ID", required = true)
-            @PathVariable String id,
             @RequestBody EduTeacher eduTeacher) {
-
-        eduTeacher.setId(id);
         boolean b = teacherService.updateById(eduTeacher);
         return b ? R.ok() : R.error();
     }
+
+    @ApiOperation("根据id查询讲师信息")
+    @GetMapping("{id}")
+    public R getTeacherInfoById(
+            @ApiParam(name = "id",value = "讲师id")
+            @PathVariable(value = "id") String id){
+
+        EduTeacher teacher = teacherService.getById(id);
+
+        return R.ok().data("item",teacher);
+    }
+
+
 }
 
