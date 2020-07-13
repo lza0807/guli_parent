@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
  * @Description : TODO
  * @Date ：Created in 2020-07-10
  */
-@RestController
-@RequestMapping("edu/user")
 @CrossOrigin
+@RestController
+@RequestMapping("eduservice/user")
 public class EduLoginController {
 
     /**
