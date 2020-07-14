@@ -2,15 +2,15 @@ package com.atguigu.eduservice.controller;
 
 
 import com.atguigu.commonutils.R;
+import com.atguigu.eduservice.entity.subject.SubjectVo;
 import com.atguigu.eduservice.service.EduSubjectService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * <p>
@@ -38,6 +38,17 @@ public class EduSubjectController {
     public R importSubject(MultipartFile file){
         eduSubjectService.importFile(file);
         return R.ok();
+    }
+
+    /**
+     * 所有课程科目信息
+     * @return
+     */
+    @GetMapping("getAllSubject")
+    @ApiOperation("课程科目信息")
+    public R getAllSubject(){
+        List<SubjectVo> list = eduSubjectService.getAllSubject();
+        return R.ok().data("list",list);
     }
 }
 
